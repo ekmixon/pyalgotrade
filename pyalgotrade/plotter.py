@@ -38,6 +38,9 @@ def get_last_value(dataSeries):
 
 
 def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
+
+
+
     class DateTimeFilter(object):
         def __init__(self, fromDate=None, toDate=None):
             self.__fromDate = fromDate
@@ -46,9 +49,8 @@ def _filter_datetimes(dateTimes, fromDate=None, toDate=None):
         def includeDateTime(self, dateTime):
             if self.__toDate and dateTime > self.__toDate:
                 return False
-            if self.__fromDate and dateTime < self.__fromDate:
-                return False
-            return True
+            return not self.__fromDate or dateTime >= self.__fromDate
+
 
     dateTimeFilter = DateTimeFilter(fromDate, toDate)
     return [x for x in dateTimes if dateTimeFilter.includeDateTime(x)]
@@ -84,9 +86,7 @@ class Series(object):
         raise NotImplementedError()
 
     def plot(self, mplSubplot, dateTimes, color):
-        values = []
-        for dateTime in dateTimes:
-            values.append(self.getValue(dateTime))
+        values = [self.getValue(dateTime) for dateTime in dateTimes]
         mplSubplot.plot(dateTimes, values, color=color, marker=self.getMarker())
 
 
@@ -197,10 +197,7 @@ class HistogramMarker(Series):
 class MACDMarker(HistogramMarker):
     def getColorForValue(self, value, default):
         ret = default
-        if value >= 0:
-            ret = "g"
-        else:
-            ret = "r"
+        ret = "g" if value >= 0 else "r"
         return ret
 
 
@@ -295,8 +292,7 @@ class InstrumentSubplot(Subplot):
 
     def onBars(self, bars):
         super(InstrumentSubplot, self).onBars(bars)
-        bar = bars.getBar(self.__instrument)
-        if bar:
+        if bar := bars.getBar(self.__instrument):
             dateTime = bars.getDateTime()
             self.__instrumentSeries.addValue(dateTime, bar)
 

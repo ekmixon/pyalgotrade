@@ -67,9 +67,7 @@ class DateRangeFilter(RowFilter):
     def includeRow(self, dateTime, values):
         if self.__toDate and dateTime > self.__toDate:
             return False
-        if self.__fromDate and dateTime < self.__fromDate:
-            return False
-        return True
+        return not self.__fromDate or dateTime >= self.__fromDate
 
 
 class BaseFeed(memfeed.MemFeed):
@@ -112,10 +110,12 @@ class BasicRowParser(RowParser):
                 dateTime += self.__timeDelta
             dateTime = dt.localize(dateTime, self.__timezone)
         # Convert the values
-        values = {}
-        for key, value in csvRowDict.items():
-            if key != self.__dateTimeColumn:
-                values[key] = self.__converter(key, value)
+        values = {
+            key: self.__converter(key, value)
+            for key, value in csvRowDict.items()
+            if key != self.__dateTimeColumn
+        }
+
         return (dateTime, values)
 
     def getFieldNames(self):

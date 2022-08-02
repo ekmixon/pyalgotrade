@@ -63,9 +63,7 @@ def bar_ds_volume_to_numpy(barDs, count):
 # Calls a talib function with the last values of a dataseries.
 def call_talib_with_ds(ds, count, talibFunc, *args, **kwargs):
     data = value_ds_to_numpy(ds, count)
-    if data is None:
-        return None
-    return talibFunc(data, *args, **kwargs)
+    return None if data is None else talibFunc(data, *args, **kwargs)
 
 
 # hlcv: High, Low, Close and Volume.
@@ -99,10 +97,7 @@ def call_talib_with_hlc(barDs, count, talibFunc, *args, **kwargs):
         return None
 
     close = bar_ds_close_to_numpy(barDs, count)
-    if close is None:
-        return None
-
-    return talibFunc(high, low, close, *args, **kwargs)
+    return None if close is None else talibFunc(high, low, close, *args, **kwargs)
 
 
 def call_talib_with_ohlc(barDs, count, talibFunc, *args, **kwargs):
@@ -131,10 +126,7 @@ def call_talib_with_hl(barDs, count, talibFunc, *args, **kwargs):
         return None
 
     low = bar_ds_low_to_numpy(barDs, count)
-    if low is None:
-        return None
-
-    return talibFunc(high, low, *args, **kwargs)
+    return None if low is None else talibFunc(high, low, *args, **kwargs)
 
 
 ######################################################################
@@ -202,9 +194,7 @@ def BETA(ds1, ds2, count, timeperiod=-2**31):
     if data1 is None:
         return None
     data2 = value_ds_to_numpy(ds2, count)
-    if data2 is None:
-        return None
-    return talib.BETA(data1, data2, timeperiod)
+    return None if data2 is None else talib.BETA(data1, data2, timeperiod)
 
 
 def BOP(barDs, count):
@@ -533,9 +523,7 @@ def CORREL(ds1, ds2, count, timeperiod=-2**31):
     if data1 is None:
         return None
     data2 = value_ds_to_numpy(ds2, count)
-    if data2 is None:
-        return None
-    return talib.CORREL(data1, data2, timeperiod)
+    return None if data2 is None else talib.CORREL(data1, data2, timeperiod)
 
 
 def DEMA(ds, count, timeperiod=-2**31):
@@ -733,9 +721,7 @@ def OBV(ds1, volumeDs, count):
     if data1 is None:
         return None
     data2 = value_ds_to_numpy(volumeDs, count)
-    if data2 is None:
-        return None
-    return talib.OBV(data1, data2)
+    return None if data2 is None else talib.OBV(data1, data2)
 
 
 def PLUS_DI(barDs, count, timeperiod=-2**31):

@@ -75,24 +75,26 @@ class NumPyDeque(object):
         else:
             # Shift items to the left and put the last value.
             # I'm not using np.roll to avoid creating a new array.
-            self.__values[0:-1] = self.__values[1:]
+            self.__values[:-1] = self.__values[1:]
             self.__values[self.__nextPos - 1] = value
 
     def data(self):
-        # If all values are not initialized, return a portion of the array.
-        if self.__nextPos < self.__maxLen:
-            ret = self.__values[0:self.__nextPos]
-        else:
-            ret = self.__values
-        return ret
+        return (
+            self.__values[: self.__nextPos]
+            if self.__nextPos < self.__maxLen
+            else self.__values
+        )
 
     def resize(self, maxLen):
         assert maxLen > 0, "Invalid maximum length"
 
         # Create empty, copy last values and swap.
         values = np.empty(maxLen, dtype=self.__values.dtype)
-        lastValues = self.__values[0:self.__nextPos]
-        values[0:min(maxLen, len(lastValues))] = lastValues[-1*min(maxLen, len(lastValues)):]
+        lastValues = self.__values[:self.__nextPos]
+        values[: min(maxLen, len(lastValues))] = lastValues[
+            -1 * min(maxLen, len(lastValues)) :
+        ]
+
         self.__values = values
 
         self.__maxLen = maxLen

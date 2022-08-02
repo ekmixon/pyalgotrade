@@ -55,9 +55,7 @@ class DateRangeFilter(BarFilter):
     def includeBar(self, bar_):
         if self.__toDate and bar_.getDateTime() > self.__toDate:
             return False
-        if self.__fromDate and bar_.getDateTime() < self.__fromDate:
-            return False
-        return True
+        return not self.__fromDate or bar_.getDateTime() >= self.__fromDate
 
 
 # US Equities Regular Trading Hours filter
@@ -192,10 +190,11 @@ class GenericRowParser(RowParser):
                 self.__haveAdjClose = True
 
         # Process extra columns.
-        extra = {}
-        for k, v in six.iteritems(csvRowDict):
-            if k not in self.__columnNames.values():
-                extra[k] = csvutils.float_or_string(v)
+        extra = {
+            k: csvutils.float_or_string(v)
+            for k, v in six.iteritems(csvRowDict)
+            if k not in self.__columnNames.values()
+        }
 
         return self.__barClass(
             dateTime, open_, high, low, close, volume, adjClose, self.__frequency, extra=extra

@@ -37,10 +37,7 @@ class Database(dbfeed.Database):
     def __init__(self, dbFilePath):
         self.__instrumentIds = {}
 
-        # If the file doesn't exist, we'll create it and initialize it.
-        initialize = False
-        if not os.path.exists(dbFilePath):
-            initialize = True
+        initialize = not os.path.exists(dbFilePath)
         self.__connection = sqlite3.connect(dbFilePath)
         self.__connection.isolation_level = None  # To do auto-commit
         if initialize:
@@ -104,15 +101,15 @@ class Database(dbfeed.Database):
             self.__connection.execute(sql, params)
         except sqlite3.IntegrityError:
             sql = "update bar set open = ?, high = ?, low = ?, close = ?, volume = ?, adj_close = ?" \
-                " where instrument_id = ? and frequency = ? and timestamp = ?"
+                    " where instrument_id = ? and frequency = ? and timestamp = ?"
             params = [bar.getOpen(), bar.getHigh(), bar.getLow(), bar.getClose(), bar.getVolume(), bar.getAdjClose(), instrumentId, frequency, timeStamp]
             self.__connection.execute(sql, params)
 
     def getBars(self, instrument, frequency, timezone=None, fromDateTime=None, toDateTime=None):
         instrument = normalize_instrument(instrument)
         sql = "select bar.timestamp, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.adj_close, bar.frequency" \
-            " from bar join instrument on (bar.instrument_id = instrument.instrument_id)" \
-            " where instrument.name = ? and bar.frequency = ?"
+                " from bar join instrument on (bar.instrument_id = instrument.instrument_id)" \
+                " where instrument.name = ? and bar.frequency = ?"
         args = [instrument, frequency]
 
         if fromDateTime is not None:
